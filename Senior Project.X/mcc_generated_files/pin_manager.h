@@ -62,13 +62,7 @@
 
   @Preconditions
     The RA10 must be set to an output.
-
-  @Returns
-    None.
-
-  @Param
-    None.
-
+ * 
   @Example
     <code>
     // Set RA10 high (1)

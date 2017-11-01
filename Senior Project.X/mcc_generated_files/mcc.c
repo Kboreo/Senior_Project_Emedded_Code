@@ -45,12 +45,12 @@
 // Configuration bits: selected in the GUI
 
 // CONFIG2
-#pragma config POSCMOD = HS    // Primary Oscillator Select->HS Oscillator mode selected
+#pragma config POSCMOD = NONE    // Primary Oscillator Select->Primary oscillator disabled
 #pragma config I2C1SEL = PRI    // I2C1 Pin Location Select->Use default SCL1/SDA1 pins
 #pragma config IOL1WAY = ON    // IOLOCK Protection->Once IOLOCK is set, cannot be changed
 #pragma config OSCIOFNC = OFF    // Primary Oscillator Output Function->OSC2/CLKO/RC15 functions as CLKO (FOSC/2)
 #pragma config FCKSM = CSDCMD    // Clock Switching and Monitor->Clock switching and Fail-Safe Clock Monitor are disabled
-#pragma config FNOSC = PRI    // Oscillator Select->Primary Oscillator (XT, HS, EC)
+#pragma config FNOSC = FRCPLL    // Oscillator Select->Fast RC Oscillator with PLL module (FRCPLL)
 #pragma config SOSCSEL = SOSC    // Sec Oscillator Select->Default Secondary Oscillator (SOSC)
 #pragma config WUTSEL = LEG    // Wake-up timer Select->Legacy Wake-up Timer
 #pragma config IESO = ON    // Internal External Switch Over Mode->IESO mode (Two-Speed Start-up) enabled
@@ -78,10 +78,10 @@ void SYSTEM_Initialize(void)
 
 void OSCILLATOR_Initialize(void)
 {
-    // NOSC PRI; SOSCEN disabled; OSWEN Switch is Complete; 
-    __builtin_write_OSCCONL((uint8_t) (0x0200 & 0x00FF));
-    // RCDIV FRC/2; DOZE 1:8; DOZEN disabled; ROI disabled; 
-    CLKDIV = 0x3100;
+    // NOSC FRCPLL; SOSCEN disabled; OSWEN Switch is Complete; 
+    __builtin_write_OSCCONL((uint8_t) (0x0100 & 0x00FF));
+    // RCDIV FRC/1; DOZE 1:8; DOZEN disabled; ROI disabled; 
+    CLKDIV = 0x3000;
     // TUN Center frequency; 
     OSCTUN = 0x0000;
 }

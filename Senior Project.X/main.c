@@ -77,50 +77,76 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
     {
         case 1:            
             PHASE1_L_SetLow(); //Phase1 Left
+            PHASE1_R_SetLow(); //Phase1 Right
             motorStage++;
             break;
         case 2:
             PHASE2_L_SetLow();//Phase2 Left
+            PHASE2_R_SetLow();//Phase2 right
             motorStage++;
             break;
         case 3:
             PHASE1_L_SetHigh(); //Phase1 Left
+            PHASE1_R_SetHigh(); //Phase1 Right
             motorStage++;
             break;
         case 4:
             PHASE2_L_SetHigh();//Phase2 Left
+            PHASE2_R_SetHigh();//Phase2 Right
             motorStage = 1;
             break;
         default:
             motorStage = 1;
             break;
     }
-    //STATUS_LED_Toggle();
+       
    _T1IF = 0;     //Reset interrupt flag.
 }
 
 void motorTest(void)
 {
-    FRONT_1BACK_SetLow();
-    DEMUX_ENABLE_SetLow();
+    bool trigger = false;
+    //FRONT_1BACK_SetLow(); //Enable front motors
+    FRONT_1BACK_SetHigh();  //Enable rear motors
+    DEMUX_ENABLE_SetLow();     //Enable muxs
+    
     I11_L_SetLow();
     I12_L_SetLow();
+    I12_R_SetLow();
+    I12_R_SetLow();
     
     _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
     TMR1 = 0; // Init the timer
-    PR1 = 9880-1; // set the period register
+    PR1 = 158079-1; // set the period register
+    //PR1 = 158080-1;
     T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
     _T1IF = 0; //Clear Interrupt Flag
     _T1IE = 1; //Enable Clock Source
  
-    PHASE1_L_SetHigh(); //Phase1 eg.
-    PHASE2_L_SetHigh(); //Phase2 eg.
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors
+    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors
+    
     //STATUS_LED_SetHigh();
-    while(1)
-    {
+    
+    while(!trigger)
+    {        
+        
         // your main code here
     } 
+    
+    I11_L_SetHigh();
+    I12_L_SetHigh();
+    I11_R_SetHigh();
+    I12_R_SetHigh();
+    
 }
+
+
+
+
 /**
  End of File
 */

@@ -48,6 +48,7 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void);
 void motorTest(void);
 
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
+int wait = 0; //wait var used for testing/debugging 
 /*
                          Main application
  */
@@ -99,16 +100,16 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
             motorStage = 1;
             break;
     }
-       
+    wait++;    
    _T1IF = 0;     //Reset interrupt flag.
 }
 
 void motorTest(void)
-{
-    bool trigger = false;
+{    
     //FRONT_1BACK_SetLow(); //Enable front motors
     FRONT_1BACK_SetHigh();  //Enable rear motors
     DEMUX_ENABLE_SetLow();     //Enable muxs
+    
     
     I11_L_SetLow();
     I12_L_SetLow();
@@ -117,7 +118,7 @@ void motorTest(void)
     
     _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
     TMR1 = 0; // Init the timer
-    PR1 = 158079-1; // set the period register
+    PR1 = 158080-1; // set the period register
     //PR1 = 158080-1;
     T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
     _T1IF = 0; //Clear Interrupt Flag
@@ -131,17 +132,22 @@ void motorTest(void)
     
     //STATUS_LED_SetHigh();
     
-    while(!trigger)
+    while(1)
     {        
-        
-        // your main code here
-    } 
-    
-    I11_L_SetHigh();
-    I12_L_SetHigh();
-    I11_R_SetHigh();
-    I12_R_SetHigh();
-    
+        if(wait >= 1012) //Checks if wait var has has been incremented 1012 times (aka approx 10 seconds have passed)
+        {
+            T1CON = 0x0; //disable timer1
+            I11_L_SetHigh();
+            I12_L_SetHigh();    
+            I11_R_SetHigh();
+            I12_R_SetHigh();        
+            
+            while(1)
+            {
+                //loop forever
+            }
+        }        
+    }    
 }
 
 

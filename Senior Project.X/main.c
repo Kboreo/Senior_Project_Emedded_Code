@@ -20,28 +20,6 @@
         MPLAB             :  MPLAB X 3.60
 */
 
-/*
-    (c) 2016 Microchip Technology Inc. and its subsidiaries. You may use this
-    software and any derivatives exclusively with Microchip products.
-
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
-    WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
-    PARTICULAR PURPOSE, OR ITS INTERACTION WITH MICROCHIP PRODUCTS, COMBINATION
-    WITH ANY OTHER PRODUCTS, OR USE IN ANY APPLICATION.
-
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
-    BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
-    FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
-    ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
-    THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
-
-    MICROCHIP PROVIDES THIS SOFTWARE CONDITIONALLY UPON YOUR ACCEPTANCE OF THESE
-    TERMS.
-*/
-
 #include "mcc_generated_files/mcc.h"
 
 void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void);
@@ -53,6 +31,9 @@ void enableBothRearMotors(void);
 void enableLeftRearMotor(void);
 void enableRightRearMotor(void);
 void disableAllMotors(void);        //Disables all motors
+void driveMotorsReverse(void);
+void driveMotorsForward(void);
+void retractAllMotors(void);
 
 bool forward;   //Bool used to let the controller know wheither the motor should move forward or reverse
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
@@ -150,9 +131,7 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
 
 void motorTest(void)
 {
-    enableRightFrontMotor();
-    
-    
+    enableRightFrontMotor();    
     _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
     TMR1 = 0; // Init the timer
     PR1 = 158080-1; // set the period register
@@ -244,6 +223,62 @@ void disableAllMotors(void)
     I12_L_SetHigh();        //Disables all motors 
     I11_R_SetHigh();    
     I12_R_SetHigh();
+}
+
+
+void retractAllMotors(void)
+{    
+    bool leftSwitch;
+    bool rightSwitch;
+    
+    rightSwitch = LIMIT_FR_GetValue();
+    leftSwitch = LIMIT_FL_GetValue();
+    
+    while((rightSwitch) || (leftSwitch))
+    {
+        if(rightSwitch && leftSwitch)            
+        {
+            while(rightSwitch && leftSwitch)
+            enableBothFrontMotors();
+            driveMotorsReverse();
+        }
+        
+    }
+    
+}
+
+void driveMotorsForward(void)
+{
+    forward = true; //Motors are driving in the "forward" direction
+    
+    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
+    TMR1 = 0; // Init the timer
+    PR1 = 158080-1; // set the period register
+    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
+    _T1IF = 0; //Clear Interrupt Flag
+    _T1IE = 1; //Enable Clock Source
+    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors
+}
+
+void driveMotorsReverse(void)
+{
+    forward = false; //Motors are driving in the "forward" direction
+    
+    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
+    TMR1 = 0; // Init the timer
+    PR1 = 158080-1; // set the period register
+    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
+    _T1IF = 0; //Clear Interrupt Flag
+    _T1IE = 1; //Enable Clock Source
+    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors
 }
 /**
  End of File

@@ -56,12 +56,14 @@ void disableAllMotors(void);        //Disables all motors
 
 bool forward;   //Bool used to let the controller know wheither the motor should move forward or reverse
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
-int wait = 0; //wait var used for testing/debugging 
+int wait = 0; //wait var used for testing/debugging
+bool limitSwitch;   //Variable used to test limit switch
 /*
                          Main application
  */
 int main(void)
 {
+    
     // initialize the device
     SYSTEM_Initialize();
     //T1CON = 0x8030; // 0b10000000_00110000 TMR1 on, prescaler 1:256 Tclk/2
@@ -69,7 +71,8 @@ int main(void)
     //T1CON = 0x8020; // 0b10000000_00000000 TMR1 on, prescaler 1:64 Tclk/2
     
     motorTest();
-   
+    //disableAllMotors();
+    
     while (1)
     {
         
@@ -167,19 +170,16 @@ void motorTest(void)
     
     //STATUS_LED_SetHigh();
     
+    
     while(1)
-    {        
-        if(wait >= 5000) //Checks if wait var has has been incremented 1012 times (aka approx 10 seconds have passed)
+    {   
+        limitSwitch = LIMIT_FR_GetValue();
+        if(!limitSwitch) //Checks if wait var has has been incremented 1012 times (aka approx 10 seconds have passed)
         {
-            forward = false;                   
-            if(wait >= 10000)
-            {             
-                disableAllMotors();
-                
-                while(1)
-                {
-                //loop forever
-                }
+            if(wait > 1000)
+            {    
+            forward = !forward;
+            wait = 0;
             }
         }        
     }    

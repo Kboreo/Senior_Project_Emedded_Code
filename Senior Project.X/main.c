@@ -173,7 +173,7 @@ void enableBothFrontMotors(void)
     FRONT_1BACK_SetLow(); //Enable front motors on the select line on the demux 
     I11_L_SetLow();
     I12_L_SetLow();
-    I12_R_SetLow();     //Enable both left and right motors
+    I11_R_SetLow();     //Enable both left and right motors
     I12_R_SetLow();    
 }
 
@@ -191,9 +191,9 @@ void enableRightFrontMotor(void)
 {
     DEMUX_ENABLE_SetLow();     //Enable demux
     FRONT_1BACK_SetLow(); //Enable front motors select line on the demux 
-    I12_R_SetLow();     //Enable right motors
+    I11_R_SetLow();     //Enable right motors
     I12_R_SetLow();
-    I12_L_SetHigh();     //Disable Left motors
+    I11_L_SetHigh();     //Disable Left motors
     I12_L_SetHigh();
     
 }
@@ -204,7 +204,7 @@ void enableBothRearMotors(void)
     FRONT_1BACK_SetHigh();  //Enable rear motors select line on the demux 
     I11_L_SetLow();
     I12_L_SetLow();
-    I12_R_SetLow();     //Enable both left and right motors
+    I11_R_SetLow();     //Enable both left and right motors
     I12_R_SetLow();    
 }
 
@@ -223,9 +223,9 @@ void enableRightRearMotor(void)
 {
     DEMUX_ENABLE_SetLow();  //Enable demux
     FRONT_1BACK_SetHigh();  //Enable rear motors select line on the demux
-    I12_R_SetLow();     //Enable right motors
+    I11_R_SetLow();     //Enable right motors
     I12_R_SetLow();
-    I12_L_SetHigh();     //Disable Left motors
+    I11_L_SetHigh();     //Disable Left motors
     I12_L_SetHigh();
 }
 
@@ -256,7 +256,8 @@ void retractAllMotors(void)
 
 			while (rightSwitch && leftSwitch) 
 			{
-				
+                rightSwitch = LIMIT_FR_GetValue();
+                leftSwitch = LIMIT_FL_GetValue();				
 			}
 			disableAllMotors();
 		}
@@ -268,7 +269,7 @@ void retractAllMotors(void)
 
 			while (rightSwitch)
 			{
-				
+				rightSwitch = LIMIT_FR_GetValue();
 			}
 			disableAllMotors();
 		}
@@ -280,7 +281,8 @@ void retractAllMotors(void)
 
 			while (leftSwitch)
 			{
-				
+                rightSwitch = LIMIT_FR_GetValue();
+                leftSwitch = LIMIT_FL_GetValue();				
 			}
 			disableAllMotors();
 		}		

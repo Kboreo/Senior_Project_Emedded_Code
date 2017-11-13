@@ -61,7 +61,7 @@
 #pragma config WINDIS = ON    // Watchdog Timer Window->Standard Watchdog Timer enabled,(Windowed-mode is disabled)
 #pragma config FWDTEN = OFF    // Watchdog Timer Enable->Watchdog Timer is disabled
 #pragma config ICS = PGx1    // Comm Channel Select->Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1
-#pragma config COE = OFF    // Set Clip On Emulation Mode->Reset Into Operational Mode
+//#pragma config COE = OFF    // Set Clip On Emulation Mode->Reset Into Operational Mode
 #pragma config BKBUG = OFF    // Background Debug->Device resets into Operational mode
 #pragma config GWRP = OFF    // General Code Segment Write Protect->Writes to program memory are allowed
 #pragma config GCP = OFF    // General Code Segment Code Protect->Code protection is disabled
@@ -72,8 +72,8 @@
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     OSCILLATOR_Initialize();
+    INTERRUPT_Initialize();
 }
 
 void OSCILLATOR_Initialize(void)

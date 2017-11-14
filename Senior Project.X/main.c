@@ -36,6 +36,8 @@ void driveBothMotorsForward(void);
 void retractAllMotors(void);
 void driveLeftMotorReverse(void);
 void driveRightMotorReverse(void);
+void retractFrontMotors(void);
+void retractRearMotors(void);
 
 bool forward;   //Bool used to let the controller know wheither the motor should move forward or reverse
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
@@ -241,53 +243,8 @@ void disableAllMotors(void)
 
 void retractAllMotors(void)
 {    
-    volatile bool leftSwitch;
-    volatile bool rightSwitch;
-    
-    rightSwitch = LIMIT_FR_GetValue();
-    leftSwitch = LIMIT_FL_GetValue();
-    
-    while ((rightSwitch + leftSwitch) > 0)
-	{
-		if (rightSwitch && leftSwitch)
-		{
-			enableBothFrontMotors();
-			driveBothMotorsReverse();
-
-			while (rightSwitch && leftSwitch) 
-			{
-                rightSwitch = LIMIT_FR_GetValue();
-                leftSwitch = LIMIT_FL_GetValue();				
-			}
-			disableAllMotors();
-		}
-
-		if (rightSwitch)
-		{
-			enableRightFrontMotor();
-			driveRightMotorReverse();
-
-			while (rightSwitch)
-			{
-				rightSwitch = LIMIT_FR_GetValue();
-			}
-			disableAllMotors();
-		}
-
-		if (leftSwitch)
-		{
-			enableLeftFrontMotor();
-			driveLeftMotorReverse();
-
-			while (leftSwitch)
-			{
-                rightSwitch = LIMIT_FR_GetValue();
-                leftSwitch = LIMIT_FL_GetValue();				
-			}
-			disableAllMotors();
-		}		
-	}
-    disableAllMotors();
+    retractFrontMotors();
+    retractRearMotors();
 }
 
 void driveBothMotorsForward(void)
@@ -352,6 +309,108 @@ void driveLeftMotorReverse(void)
     
     PHASE1_L_SetHigh(); //Phase1 Left Motors
     PHASE2_L_SetHigh(); //Phase2 Left Motors 
+}
+
+void retractFrontMotors(void)
+{
+    volatile bool leftSwitch;
+    volatile bool rightSwitch;
+    
+    rightSwitch = LIMIT_FR_GetValue();
+    leftSwitch = LIMIT_FL_GetValue();
+    
+    while ((rightSwitch + leftSwitch) > 0)
+	{
+		if (rightSwitch && leftSwitch)
+		{
+			enableBothFrontMotors();
+			driveBothMotorsReverse();
+
+			while (rightSwitch && leftSwitch) 
+			{
+                rightSwitch = LIMIT_FR_GetValue();
+                leftSwitch = LIMIT_FL_GetValue();				
+			}
+			disableAllMotors();
+		}
+
+		if (rightSwitch)
+		{
+			enableRightFrontMotor();
+			driveRightMotorReverse();
+
+			while (rightSwitch)
+			{
+				rightSwitch = LIMIT_FR_GetValue();
+			}
+			disableAllMotors();
+		}
+
+		if (leftSwitch)
+		{
+			enableLeftFrontMotor();
+			driveLeftMotorReverse();
+
+			while (leftSwitch)
+			{
+                rightSwitch = LIMIT_FR_GetValue();
+                leftSwitch = LIMIT_FL_GetValue();				
+			}
+			disableAllMotors();
+		}		
+	}
+    disableAllMotors();
+}
+
+void retractRearMotors(void)
+{
+    volatile bool leftSwitch;
+    volatile bool rightSwitch;
+    
+    rightSwitch = LIMIT_BR_GetValue();
+    leftSwitch = LIMIT_BL_GetValue();
+    
+    while ((rightSwitch + leftSwitch) > 0)
+	{
+		if (rightSwitch && leftSwitch)
+		{
+			enableBothRearMotors();
+			driveBothMotorsReverse();
+
+			while (rightSwitch && leftSwitch) 
+			{
+                rightSwitch = LIMIT_BR_GetValue();
+                leftSwitch = LIMIT_BL_GetValue();				
+			}
+			disableAllMotors();
+		}
+
+		if (rightSwitch)
+		{
+			enableRightRearMotor();
+			driveRightMotorReverse();
+
+			while (rightSwitch)
+			{
+				rightSwitch = LIMIT_BR_GetValue();
+			}
+			disableAllMotors();
+		}
+
+		if (leftSwitch)
+		{
+			enableLeftRearMotor();
+			driveLeftMotorReverse();
+
+			while (leftSwitch)
+			{
+                rightSwitch = LIMIT_BR_GetValue();
+                leftSwitch = LIMIT_BL_GetValue();				
+			}
+			disableAllMotors();
+		}		
+	}
+    disableAllMotors();
 }
 /**
  End of File

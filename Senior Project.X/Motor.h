@@ -47,6 +47,14 @@ extern "C" {
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 
+typedef enum
+{
+    frontRight = 3,
+    frontLeft = 2,
+    backRight = 1,
+    backLeft = 0
+}location;
+
 void enableBothFrontMotors(void);
 void enableLeftFrontMotor(void);
 void enableRightFrontMotor(void);
@@ -61,3 +69,6 @@ void driveLeftMotorReverse(bool forward);
 void driveRightMotorReverse(bool forward);
 void retractFrontMotors(bool forward);
 void retractRearMotors(bool forward);
+//void backOff(bool forward, location location);
+void extendFrontRightMotor(bool forward);
+void driveBothMotors(bool forward);

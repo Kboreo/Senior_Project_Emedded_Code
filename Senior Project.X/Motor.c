@@ -8,6 +8,14 @@
 
 #include "motor.h"
 
+typedef enum
+{
+    frontRight = 3,
+    frontLeft = 2,
+    backRight = 1,
+    backLeft = 0
+}location;
+
 
 void enableBothFrontMotors(void)
 {
@@ -253,4 +261,62 @@ void retractRearMotors(bool forward)
 		}		
 	}
     disableAllMotors();
+}
+
+void backOff(bool forward, location location)
+{
+    forward = !forward;   //Set motors to run in opposite direction
+    
+    if(location == frontRight)
+    {
+        
+    }
+    
+}
+
+void extendFrontRightMotor(bool forward)
+{
+    //volatile bool leftSwitch;   //bool for the limit switch on the left side
+    volatile bool rightSwitch;  //bool for the limit switch on the right side
+    forward = true;
+    //volatile bool leftFlag;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+    volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
+    
+    rightSwitch = LIMIT_FR_GetValue();    
+    
+    if (rightSwitch)
+	{
+		enableRightFrontMotor();
+		driveBothMotors(forward);
+        
+		while (rightSwitch) 
+		{
+            rightSwitch = LIMIT_FR_GetValue();            			
+		}
+        rightFlag = true;
+        disableAllMotors();	
+	
+	}
+    if(rightFlag)
+    {
+        backOff(forward,frontRight);
+    }
+    disableAllMotors();
+}
+
+void driveBothMotors(bool forward)
+{   
+    //forward = false; //Motors are driving in the "reverse" direction
+    
+    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
+    TMR1 = 0; // Init the timer
+    PR1 = 158080-1; // set the period register
+    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
+    _T1IF = 0; //Clear Interrupt Flag
+    _T1IE = 1; //Enable Clock Source
+    
+    PHASE1_L_SetHigh(); //Phase1 Left Motors
+    PHASE2_L_SetHigh(); //Phase2 Left Motors    
+    PHASE1_R_SetHigh(); //Phase1 Right Motors
+    PHASE2_R_SetHigh(); //Phase2 Right Motors
 }

@@ -31,8 +31,37 @@
 #ifndef XC_HEADER_TEMPLATE_H
 #define	XC_HEADER_TEMPLATE_H
 
-#include <xc.h> // include processor files - each processor file is guarded. 
-#include "mcc_generated_files/mcc.h"
+#include <xc.h> // include processor files - each processor file is guarded.  
+
+// TODO Insert appropriate #include <>
+
+// TODO Insert C++ class definitions if appropriate
+
+// TODO Insert declarations
+
+// Comment a function and leverage automatic documentation with slash star star
+/**
+    <p><b>Function prototype:</b></p>
+  
+    <p><b>Summary:</b></p>
+
+    <p><b>Description:</b></p>
+
+    <p><b>Precondition:</b></p>
+
+    <p><b>Parameters:</b></p>
+
+    <p><b>Returns:</b></p>
+
+    <p><b>Example:</b></p>
+    <code>
+ 
+    </code>
+
+    <p><b>Remarks:</b></p>
+ */
+// TODO Insert declarations or function prototypes (right here) to leverage 
+// live documentation
 
 #ifdef	__cplusplus
 extern "C" {
@@ -47,21 +76,4 @@ extern "C" {
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 
-void enableBothFrontMotors(void);
-void enableLeftFrontMotor(void);
-void enableRightFrontMotor(void);
-void enableBothRearMotors(void);
-void enableLeftRearMotor(void);
-void enableRightRearMotor(void);
-void disableAllMotors(void);        //Disables all motors
-void driveBothMotorsReverse(bool forward);
-void driveBothMotorsForward(bool forward);
-void retractAllMotors(bool forward);
-void driveLeftMotorReverse(bool forward);
-void driveRightMotorReverse(bool forward);
-void retractFrontMotors(bool forward);
-void retractRearMotors(bool forward);
-
-void driveRightMotors(bool forward);
-void backOff(bool forward);
-void extendFrontRightMotor(bool forward);
+extern bool forward;

@@ -7,14 +7,7 @@
 
 
 #include "motor.h"
-
-typedef enum
-{
-    frontRight = 3,
-    frontLeft = 2,
-    backRight = 1,
-    backLeft = 0
-}location;
+#include "main.h"
 
 
 void enableBothFrontMotors(void)
@@ -92,7 +85,7 @@ void disableAllMotors(void)
 void retractAllMotors(bool forward)
 {    
     retractFrontMotors(forward);
-    retractRearMotors(forward);
+    //retractRearMotors(forward);
 }
 
 void driveBothMotorsForward(bool forward)
@@ -263,15 +256,19 @@ void retractRearMotors(bool forward)
     disableAllMotors();
 }
 
-void backOff(bool forward, location location)
-{
-    forward = !forward;   //Set motors to run in opposite direction
+void driveRightMotors(bool forward)
+{   
+    forward = false; //Motors are driving in the "reverse" direction
     
-    if(location == frontRight)
-    {
-        
-    }
+    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
+    TMR1 = 0; // Init the timer
+    PR1 = 158080-1; // set the period register
+    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
+    _T1IF = 0; //Clear Interrupt Flag
+    _T1IE = 1; //Enable Clock Source
     
+    PHASE1_R_SetHigh(); //Phase1 Right Motors
+    PHASE2_R_SetHigh(); //Phase2 Right Motors 
 }
 
 void extendFrontRightMotor(bool forward)
@@ -287,7 +284,7 @@ void extendFrontRightMotor(bool forward)
     if (rightSwitch)
 	{
 		enableRightFrontMotor();
-		driveBothMotors(forward);
+		driveBothMotorsForward(forward);
         
 		while (rightSwitch) 
 		{
@@ -299,24 +296,24 @@ void extendFrontRightMotor(bool forward)
 	}
     if(rightFlag)
     {
-        backOff(forward,frontRight);
+        backOff(forward);
     }
     disableAllMotors();
 }
 
-void driveBothMotors(bool forward)
-{   
-    //forward = false; //Motors are driving in the "reverse" direction
+void backOff(bool forward)
+{
+    //int test = 100000;
+    int target = 0;
+    //volatile bool rightSwitch;  //bool for the limit switch on the right side   
+    //forward = !forward;    
     
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source
+    enableRightFrontMotor();
+    driveRightMotorReverse(forward);
     
-    PHASE1_L_SetHigh(); //Phase1 Left Motors
-    PHASE2_L_SetHigh(); //Phase2 Left Motors    
-    PHASE1_R_SetHigh(); //Phase1 Right Motors
-    PHASE2_R_SetHigh(); //Phase2 Right Motors
+    while(1)
+    {
+        target++;
+    }
+    disableAllMotors();	
 }

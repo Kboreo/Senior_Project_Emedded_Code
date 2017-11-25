@@ -13,6 +13,7 @@
         <itemPath>mcc_generated_files/mcc.h</itemPath>
       </logicalFolder>
       <itemPath>Motor.h</itemPath>
+      <itemPath>main.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

@@ -22,25 +22,13 @@
 
 #include "mcc_generated_files/mcc.h"
 #include "Motor.h"
+#include "main.h"
 
 void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void);
 void motorTest(void);
-//void enableBothFrontMotors(void);
-//void enableLeftFrontMotor(void);
-//void enableRightFrontMotor(void);
-//void enableBothRearMotors(void);
-//void enableLeftRearMotor(void);
-//void enableRightRearMotor(void);
-//void disableAllMotors(void);        //Disables all motors
-//void driveBothMotorsReverse(void);
-//void driveBothMotorsForward(void);
-//void retractAllMotors(void);
-//void driveLeftMotorReverse(void);
-//void driveRightMotorReverse(void);
-//void retractFrontMotors(void);
-//void retractRearMotors(void);
 
-bool forward;   //Bool used to let the controller know whether the motor should move forward or reverse
+
+bool forward = true;   //Bool used to let the controller know which way the motor should move. (forward or reverse)
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
 int wait = 0; //wait var used for testing/debugging
 bool limitSwitch;   //Variable used to test limit switch
@@ -48,12 +36,13 @@ bool limitSwitch;   //Variable used to test limit switch
                          Main application
  */
 int main(void)
-{    
+{
+    
     // initialize the device
-    SYSTEM_Initialize();
-        
+    SYSTEM_Initialize(); 
+    
     motorTest();
-    //disableAllMotors();
+    
     
     while (1)
     {
@@ -132,9 +121,9 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
 void motorTest(void)
 {
     forward = true;
-    enableRightFrontMotor();
-    
-    //retractAllMotors(forward);
+    retractAllMotors(forward);
+    forward = false;
+    extendFrontRightMotor(forward);
 }
 
 

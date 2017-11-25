@@ -54,14 +54,14 @@ void enableBothRearMotors(void);
 void enableLeftRearMotor(void);
 void enableRightRearMotor(void);
 void disableAllMotors(void);        //Disables all motors
-void driveBothMotorsReverse(bool forward);
-void driveBothMotorsForward(bool forward);
-void retractAllMotors(bool forward);
-void driveLeftMotorReverse(bool forward);
-void driveRightMotorReverse(bool forward);
-void retractFrontMotors(bool forward);
-void retractRearMotors(bool forward);
+void driveBothMotorsReverse(void);
+void driveBothMotorsForward(void);
+void retractAllMotors(void);
+void driveLeftMotorReverse(void);
+void driveRightMotorReverse(void);
+void retractFrontMotors(void);
+void retractRearMotors(void);
 
-void driveRightMotors(bool forward);
+void driveRightMotors(void);
 void backOff(bool forward);
-void extendFrontRightMotor(bool forward);
+void extendFrontRightMotor(void);

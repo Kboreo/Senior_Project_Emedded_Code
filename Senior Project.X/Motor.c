@@ -82,13 +82,13 @@ void disableAllMotors(void)
 }
 
 
-void retractAllMotors(bool forward)
+void retractAllMotors()
 {    
-    retractFrontMotors(forward);
-    //retractRearMotors(forward);
+    retractFrontMotors();
+    //retractRearMotors();
 }
 
-void driveBothMotorsForward(bool forward)
+void driveBothMotorsForward()
 {
     forward = true; //Motors are driving in the "forward" direction
     
@@ -105,7 +105,7 @@ void driveBothMotorsForward(bool forward)
     PHASE2_R_SetHigh(); //Phase2 Right Motors
 }
 
-void driveBothMotorsReverse(bool forward)
+void driveBothMotorsReverse()
 {
     forward = false; //Motors are driving in the "reverse" direction
     
@@ -122,7 +122,7 @@ void driveBothMotorsReverse(bool forward)
     PHASE2_R_SetHigh(); //Phase2 Right Motors
 }
 
-void driveRightMotorReverse(bool forward)
+void driveRightMotorReverse()
 {
     forward = false; //Motors are driving in the "reverse" direction
     
@@ -137,7 +137,7 @@ void driveRightMotorReverse(bool forward)
     PHASE2_R_SetHigh(); //Phase2 Right Motors 
 }
 
-void driveLeftMotorReverse(bool forward)
+void driveLeftMotorReverse()
 {
     forward = false; //Motors are driving in the "reverse" direction
     
@@ -152,8 +152,9 @@ void driveLeftMotorReverse(bool forward)
     PHASE2_L_SetHigh(); //Phase2 Left Motors 
 }
 
-void retractFrontMotors(bool forward)
+void retractFrontMotors()
 {
+    forward = false;
     volatile bool leftSwitch;   //bool for the limit switch on the left side
     volatile bool rightSwitch;  //bool for the limit switch on the right side
     //volatile bool leftFlag;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
@@ -167,7 +168,7 @@ void retractFrontMotors(bool forward)
 		if (rightSwitch && leftSwitch)
 		{
 			enableBothFrontMotors();
-			driveBothMotorsReverse(forward);
+			driveBothMotorsReverse();
 
 			while (rightSwitch && leftSwitch) 
 			{
@@ -180,7 +181,7 @@ void retractFrontMotors(bool forward)
 		if (rightSwitch)
 		{
 			enableRightFrontMotor();
-			driveRightMotorReverse(forward);
+			driveRightMotorReverse();
 
 			while (rightSwitch)
 			{
@@ -192,7 +193,7 @@ void retractFrontMotors(bool forward)
 		if (leftSwitch)
 		{
 			enableLeftFrontMotor();
-			driveLeftMotorReverse(forward);
+			driveLeftMotorReverse();
 
 			while (leftSwitch)
 			{                
@@ -204,8 +205,9 @@ void retractFrontMotors(bool forward)
     disableAllMotors();
 }
 
-void retractRearMotors(bool forward)
+void retractRearMotors()
 {
+    forward = false;
     volatile bool leftSwitch;   //bool for the limit switch on the left side
     volatile bool rightSwitch;  //bool for the limit switch on the right side
     //volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
@@ -219,7 +221,7 @@ void retractRearMotors(bool forward)
 		if (rightSwitch && leftSwitch)
 		{
 			enableBothRearMotors();
-			driveBothMotorsReverse(forward);
+			driveBothMotorsReverse();
 
 			while (rightSwitch && leftSwitch) 
 			{
@@ -232,7 +234,7 @@ void retractRearMotors(bool forward)
 		if (rightSwitch)
 		{                        
 			enableRightRearMotor();
-			driveRightMotorReverse(forward);
+			driveRightMotorReverse();
 
 			while (rightSwitch)
 			{
@@ -244,7 +246,7 @@ void retractRearMotors(bool forward)
 		if (leftSwitch)
 		{
 			enableLeftRearMotor();
-			driveLeftMotorReverse(forward);
+			driveLeftMotorReverse();
 
 			while (leftSwitch)
 			{                
@@ -256,7 +258,7 @@ void retractRearMotors(bool forward)
     disableAllMotors();
 }
 
-void driveRightMotors(bool forward)
+void driveRightMotors()
 {   
     forward = false; //Motors are driving in the "reverse" direction
     
@@ -271,12 +273,10 @@ void driveRightMotors(bool forward)
     PHASE2_R_SetHigh(); //Phase2 Right Motors 
 }
 
-void extendFrontRightMotor(bool forward)
-{
-    //volatile bool leftSwitch;   //bool for the limit switch on the left side
-    volatile bool rightSwitch;  //bool for the limit switch on the right side
+void extendFrontRightMotor()
+{   
     forward = true;
-    //volatile bool leftFlag;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+    volatile bool rightSwitch;  //bool for the limit switch on the right side    
     volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
     
     rightSwitch = LIMIT_FR_GetValue();    
@@ -284,7 +284,7 @@ void extendFrontRightMotor(bool forward)
     if (rightSwitch)
 	{
 		enableRightFrontMotor();
-		driveBothMotorsForward(forward);
+		driveBothMotorsForward();
         
 		while (rightSwitch) 
 		{
@@ -301,15 +301,15 @@ void extendFrontRightMotor(bool forward)
     disableAllMotors();
 }
 
-void backOff(bool forward)
+void backOff(bool bforward)
 {
-    //int test = 100000;
+    bforward = !forward;
     int target = 0;
     //volatile bool rightSwitch;  //bool for the limit switch on the right side   
     //forward = !forward;    
     
     enableRightFrontMotor();
-    driveRightMotorReverse(forward);
+    driveRightMotorReverse();
     
     while(1)
     {

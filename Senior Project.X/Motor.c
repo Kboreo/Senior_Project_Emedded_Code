@@ -153,8 +153,10 @@ void driveLeftMotorReverse(bool forward)
 
 void retractFrontMotors(bool forward)
 {
-    volatile bool leftSwitch;
-    volatile bool rightSwitch;
+    volatile bool leftSwitch;   //bool for the limit switch on the left side
+    volatile bool rightSwitch;  //bool for the limit switch on the right side
+    //volatile bool leftFlag;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+    //volatile bool rightFlag;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
     
     rightSwitch = LIMIT_FR_GetValue();
     leftSwitch = LIMIT_FL_GetValue();
@@ -192,8 +194,7 @@ void retractFrontMotors(bool forward)
 			driveLeftMotorReverse(forward);
 
 			while (leftSwitch)
-			{
-                rightSwitch = LIMIT_FR_GetValue();
+			{                
                 leftSwitch = LIMIT_FL_GetValue();				
 			}
 			disableAllMotors();
@@ -204,8 +205,10 @@ void retractFrontMotors(bool forward)
 
 void retractRearMotors(bool forward)
 {
-    volatile bool leftSwitch;
-    volatile bool rightSwitch;
+    volatile bool leftSwitch;   //bool for the limit switch on the left side
+    volatile bool rightSwitch;  //bool for the limit switch on the right side
+    //volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+    //volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
     
     rightSwitch = LIMIT_BR_GetValue();
     leftSwitch = LIMIT_BL_GetValue();
@@ -226,7 +229,7 @@ void retractRearMotors(bool forward)
 		}
 
 		if (rightSwitch)
-		{
+		{                        
 			enableRightRearMotor();
 			driveRightMotorReverse(forward);
 
@@ -234,7 +237,7 @@ void retractRearMotors(bool forward)
 			{
 				rightSwitch = LIMIT_BR_GetValue();
 			}
-			disableAllMotors();
+			disableAllMotors();                        
 		}
 
 		if (leftSwitch)
@@ -243,8 +246,7 @@ void retractRearMotors(bool forward)
 			driveLeftMotorReverse(forward);
 
 			while (leftSwitch)
-			{
-                rightSwitch = LIMIT_BR_GetValue();
+			{                
                 leftSwitch = LIMIT_BL_GetValue();				
 			}
 			disableAllMotors();

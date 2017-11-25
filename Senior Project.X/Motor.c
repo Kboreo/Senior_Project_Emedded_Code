@@ -304,16 +304,17 @@ void extendFrontRightMotor()
 void backOff(bool bforward)
 {
     bforward = !forward;
-    int target = 0;
+    int target = 100;
+    wait = 0;
     //volatile bool rightSwitch;  //bool for the limit switch on the right side   
     //forward = !forward;    
     
     enableRightFrontMotor();
     driveRightMotorReverse();
     
-    while(1)
+    while(wait <= target)
     {
-        target++;
+        
     }
     disableAllMotors();	
 }

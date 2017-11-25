@@ -77,3 +77,4 @@ extern "C" {
 #endif	/* XC_HEADER_TEMPLATE_H */
 
 extern bool forward;
+extern int wait;

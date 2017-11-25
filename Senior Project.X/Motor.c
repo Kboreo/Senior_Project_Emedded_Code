@@ -85,7 +85,7 @@ void disableAllMotors(void)
 void retractAllMotors()
 {    
     retractFrontMotors();
-    //retractRearMotors();
+    retractRearMotors();
 }
 
 void driveBothMotorsForward()
@@ -292,7 +292,6 @@ void extendFrontRightMotor()
 		}
         rightFlag = true;
         disableAllMotors();	
-	
 	}
     if(rightFlag)
     {
@@ -306,8 +305,6 @@ void backOff(bool bforward)
     bforward = !forward;
     int target = 100;
     wait = 0;
-    //volatile bool rightSwitch;  //bool for the limit switch on the right side   
-    //forward = !forward;    
     
     enableRightFrontMotor();
     driveRightMotorReverse();

@@ -14,7 +14,7 @@ void disableAllMotors(void)
 {
     T1CON = 0x0; //disable timer1
     I11_L_SetHigh();
-    I12_L_SetHigh();        //Disables all motors 
+    I12_L_SetHigh();        //Disable all motors 
     I11_R_SetHigh();    
     I12_R_SetHigh();
 }
@@ -27,9 +27,9 @@ void retractAllMotors()
 
 void retractMotor(location loc)
 {
-    if (loc == bothBack)
+    if (loc == bothBack)    //Check if location is equal to "bothBack"
     {
-        forward = false;
+        forward = false;    //Set direction to reverse
         volatile bool leftSwitch;   //bool for the limit switch on the left side
         volatile bool rightSwitch;  //bool for the limit switch on the right side
         volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
@@ -38,22 +38,23 @@ void retractMotor(location loc)
         rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
         leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.
 
-        while (!rightFlag && !leftFlag)
+        while (!rightFlag && !leftFlag)     //Loop while the flags for the limit switches have not been hit.
         {
-            if (rightSwitch && leftSwitch)
+            if (rightSwitch && leftSwitch)  //Check if both of the limit switches have been hit.
             {			
-                enableMotor(bothBack);
-                driveMotor(both);
+                enableMotor(bothBack);  //Enable both of the back motors
+                driveMotor(both);       //Drive both of the motors selected.
 
-                while (rightSwitch && leftSwitch) 
+                while (rightSwitch && leftSwitch) //Loop until the left and right limit switches have been hit.
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                     leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.				
                 }
-                leftFlag = true;
-                rightFlag = true;
-                disableAllMotors();
-                if (leftFlag && rightFlag)
+                leftFlag = true;    //Set the flag for the left limit switch
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors
+                
+                if (leftFlag && rightFlag)  //Check if the flag for both limit switches has been set.
                 {
                     backOff(loc);   //Function to back leg off of limit switch
                 }
@@ -61,14 +62,14 @@ void retractMotor(location loc)
             if (rightSwitch)
             {                        
                 enableMotor(backRight);
-                driveMotor(right);
+                driveMotor(right);  //Drive the right motor in the selected direction.
 
                 while (rightSwitch)
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                 }
-                rightFlag = true;
-                disableAllMotors();
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors
                 if (rightFlag)
                 {
                     backOff(backRight);
@@ -78,21 +79,21 @@ void retractMotor(location loc)
             if (leftSwitch)
             {
                 enableMotor(backLeft);
-                driveMotor(left);
+                driveMotor(left);       //Drive the left motor in the selected direction.
 
                 while (leftSwitch)
                 {                
                     leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.				
                 }
-                leftFlag = true;                
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch                
+                disableAllMotors(); //Disable all of the motors
                 if(leftFlag)
                 {
                     backOff(backLeft);
                 }
             }		
         }
-    disableAllMotors();
+    disableAllMotors(); //Disable all of the motors
     }
     
     if (loc == bothFront)
@@ -111,17 +112,17 @@ void retractMotor(location loc)
             if (rightSwitch && leftSwitch)
             {			
                 enableMotor(bothFront);
-                driveMotor(both);
+                driveMotor(both);       //Drive both of the motors selected.
 
-                while (rightSwitch && leftSwitch) 
+                while (rightSwitch && leftSwitch) //Loop until the left and right limit switches have been hit. 
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                     leftSwitch = LIMIT_FL_GetValue();				
                 }
-                leftFlag = true;
-                rightFlag = true;
-                disableAllMotors();
-                if (leftFlag && rightFlag)
+                leftFlag = true;    //Set the flag for the left limit switch
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors
+                if (leftFlag && rightFlag)  //Check if the flag for both limit switches has been set.
                 {
                     backOff(loc);   //Function to back leg off of limit switch
                 }
@@ -129,14 +130,14 @@ void retractMotor(location loc)
             if (rightSwitch)
             {                        
                 enableMotor(frontRight);
-                driveMotor(right);
+                driveMotor(right);  //Drive the right motor in the selected direction.
 
                 while (rightSwitch)
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                 }
-                rightFlag = true;
-                disableAllMotors();
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors
                 if (rightFlag)
                 {
                     backOff(frontRight);
@@ -146,21 +147,21 @@ void retractMotor(location loc)
             if (leftSwitch)
             {
                 enableMotor(frontLeft);
-                driveMotor(left);
+                driveMotor(left);       //Drive the left motor in the selected direction.
 
                 while (leftSwitch)
                 {                
                     leftSwitch = LIMIT_FL_GetValue();				
                 }
-                leftFlag = true;                
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch                
+                disableAllMotors(); //Disable all of the motors
                 if(leftFlag)
                 {
                     backOff(frontLeft);
                 }
             }		
         }
-    disableAllMotors();        
+    disableAllMotors(); //Disable all of the motors        
     }    
 }
 
@@ -173,39 +174,39 @@ void backOff(location loc)
     
     if(loc == frontRight)
     {
-        driveMotor(right);       	 
+        driveMotor(right);  //Drive the right motor in the selected direction.       	 
     }
     
     if(loc == backRight)
     {
-        driveMotor(right);       	 
+        driveMotor(right);  //Drive the right motor in the selected direction.       	 
     }
     
     if(loc == frontLeft)
     {        
-        driveMotor(left); 
+        driveMotor(left);       //Drive the left motor in the selected direction. 
     }
     
     if(loc == backLeft)
     {        
-        driveMotor(left); 
+        driveMotor(left);       //Drive the left motor in the selected direction. 
     }
     
     if(loc == bothFront)
     {
-         driveMotor(both);
+         driveMotor(both);       //Drive both of the motors selected.
     }
     
     if(loc == bothBack)
     {
-         driveMotor(both);
+         driveMotor(both);       //Drive both of the motors selected.
     }
     
     while(wait <= target)
     {
 
     }
-    disableAllMotors();
+    disableAllMotors(); //Disable all of the motors
 }
 
 void extendMotor(location loc)
@@ -221,20 +222,20 @@ void extendMotor(location loc)
         if (rightSwitch)
         {
             enableMotor(loc);
-            driveMotor(right);
+            driveMotor(right);  //Drive the right motor in the selected direction.
 
             while(rightSwitch) 
             {
                 rightSwitch = LIMIT_FR_GetValue();            			
             }
-            rightFlag = true;
-            disableAllMotors();	
+            rightFlag = true;   //Set the flag for the right limit switch
+            disableAllMotors(); //Disable all of the motors	
         }
         if(rightFlag)
         {
             backOff(loc);   //Function to back leg off of limit switch
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
     }
     
     if(loc == frontLeft)
@@ -248,20 +249,20 @@ void extendMotor(location loc)
         if (leftSwitch)
         {
             enableMotor(loc);
-            driveMotor(left);
+            driveMotor(left);       //Drive the left motor in the selected direction.
 
             while(leftSwitch) 
             {
                 leftSwitch = LIMIT_FL_GetValue();            			
             }
-            leftFlag = true;
-            disableAllMotors();	
+            leftFlag = true;    //Set the flag for the left limit switch
+            disableAllMotors(); //Disable all of the motors	
         }
         if(leftFlag)
         {
             backOff(loc);   //Function to back leg off of limit switch
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
     }
     
     if(loc == backLeft)
@@ -275,20 +276,20 @@ void extendMotor(location loc)
         if (leftSwitch)
         {
             enableMotor(loc);
-            driveMotor(left);
+            driveMotor(left);       //Drive the left motor in the selected direction.
 
             while(leftSwitch) 
             {
                 leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.            			
             }
-            leftFlag = true;
-            disableAllMotors();	
+            leftFlag = true;    //Set the flag for the left limit switch
+            disableAllMotors(); //Disable all of the motors	
         }
         if(leftFlag)
         {
             backOff(loc);   //Function to back leg off of limit switch
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
     }
     
     if(loc == backRight)
@@ -302,20 +303,20 @@ void extendMotor(location loc)
         if (rightSwitch)
         {
             enableMotor(loc);
-            driveMotor(right);
+            driveMotor(right);  //Drive the right motor in the selected direction.
 
             while(rightSwitch) 
             {
                 rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.            			
             }
-            rightFlag = true;
-            disableAllMotors();	
+            rightFlag = true;   //Set the flag for the right limit switch
+            disableAllMotors(); //Disable all of the motors	
         }
         if(rightFlag)
         {
             backOff(loc);   //Function to back leg off of limit switch
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
     }
     
     if(loc == bothFront)
@@ -333,20 +334,20 @@ void extendMotor(location loc)
         {
             if (rightSwitch && leftSwitch)
             {
-                enableMotor(bothBack);
-                driveMotor(both);
+                enableMotor(bothBack);  //Enable both of the back motors
+                driveMotor(both);       //Drive both of the motors selected.
 
-                while (rightSwitch && leftSwitch) 
+                while (rightSwitch && leftSwitch) //Loop until the left and right limit switches have been hit. 
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                     leftSwitch = LIMIT_FL_GetValue();				
                 }
-                leftFlag = true;
-                rightFlag = true;                
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch
+                rightFlag = true;   //Set the flag for the right limit switch                
+                disableAllMotors(); //Disable all of the motors
             }
             
-            if (leftFlag && rightFlag)
+            if (leftFlag && rightFlag)  //Check if the flag for both limit switches has been set.
             {
                 backOff(loc);   //Function to back leg off of limit switch
             }
@@ -354,14 +355,14 @@ void extendMotor(location loc)
             if (rightSwitch)
             {
                 enableMotor(backRight);
-                driveMotor(right);
+                driveMotor(right);  //Drive the right motor in the selected direction.
 
                 while (rightSwitch)
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                 }
-                rightFlag = true;
-                disableAllMotors();                        
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors                        
             }
             
             if (rightFlag)
@@ -372,14 +373,14 @@ void extendMotor(location loc)
             if (leftSwitch)
             {
                 enableMotor(backLeft);
-                driveMotor(left);
+                driveMotor(left);       //Drive the left motor in the selected direction.
 
                 while (leftSwitch)
                 {                
                     leftSwitch = LIMIT_FL_GetValue();				
                 }
-                leftFlag = true;
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch
+                disableAllMotors(); //Disable all of the motors
             }
             
             if (leftFlag)
@@ -387,7 +388,7 @@ void extendMotor(location loc)
                 backOff(loc);   //Function to back leg off of limit switch
             }
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
         leftFlag = false;
         rightFlag = false;
     }
@@ -408,20 +409,20 @@ void extendMotor(location loc)
         {
             if (rightSwitch && leftSwitch)
             {
-                enableMotor(bothBack);
-                driveMotor(both);
+                enableMotor(bothBack);  //Enable both of the back motors
+                driveMotor(both);       //Drive both of the motors selected.
 
-                while (rightSwitch && leftSwitch) 
+                while (rightSwitch && leftSwitch) //Loop until the left and right limit switches have been hit. 
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                     leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.				
                 }
-                leftFlag = true;
-                rightFlag = true;                
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch
+                rightFlag = true;   //Set the flag for the right limit switch                
+                disableAllMotors(); //Disable all of the motors
             }
             
-            if (leftFlag && rightFlag)
+            if (leftFlag && rightFlag)  //Check if the flag for both limit switches has been set.
             {
                 backOff(loc);   //Function to back leg off of limit switch
             }
@@ -429,14 +430,14 @@ void extendMotor(location loc)
             if (rightSwitch)
             {
                 enableMotor(backRight);
-                driveMotor(right);
+                driveMotor(right);  //Drive the right motor in the selected direction.
 
                 while (rightSwitch)
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                 }
-                rightFlag = true;
-                disableAllMotors();                        
+                rightFlag = true;   //Set the flag for the right limit switch
+                disableAllMotors(); //Disable all of the motors                        
             }
             
             if (rightFlag)
@@ -447,14 +448,14 @@ void extendMotor(location loc)
             if (leftSwitch)
             {
                 enableMotor(backLeft);
-                driveMotor(left);
+                driveMotor(left);       //Drive the left motor in the selected direction.
 
                 while (leftSwitch)
                 {                
                     leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.				
                 }
-                leftFlag = true;
-                disableAllMotors();
+                leftFlag = true;    //Set the flag for the left limit switch
+                disableAllMotors(); //Disable all of the motors
             }
             
             if (leftFlag)
@@ -462,7 +463,7 @@ void extendMotor(location loc)
                 backOff(loc);   //Function to back leg off of limit switch
             }
         }
-        disableAllMotors();
+        disableAllMotors(); //Disable all of the motors
         leftFlag = false;
         rightFlag = false;
     }

@@ -22,7 +22,7 @@ void disableAllMotors(void)
 void retractAllMotors()
 {    
     retractMotor(bothFront);
-    retractMotor(bothBack);    
+    //retractMotor(bothBack);    
 }
 
 void retractMotor(location loc)
@@ -167,7 +167,7 @@ void retractMotor(location loc)
 void backOff(location loc)
 {
     forward = !forward;
-    int target = 300;
+    int target = 25;
     wait = 0;
     enableMotor(loc);
     

@@ -91,10 +91,11 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
 }
 
 void motorTest(void)
-{    
-    retractAllMotors();   
-    //extendMotor(frontRight);
-    //extendMotor(frontLeft);
+{       
+    extendMotor(frontRight);
+    extendMotor(frontLeft);
+    retractAllMotors();
+    
     //extendFrontRightMotor();
 }
 

@@ -12,8 +12,7 @@ int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
 int wait = 0; //wait var used for testing/debugging
 
 int main(void)
-{
-    
+{    
     // initialize the device
     SYSTEM_Initialize(); 
     
@@ -93,9 +92,9 @@ void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void)
 
 void motorTest(void)
 {    
-    //retractAllMotors();   
-    extendMotor(frontRight);
-    extendMotor(frontLeft);
+    retractAllMotors();   
+    //extendMotor(frontRight);
+    //extendMotor(frontLeft);
     //extendFrontRightMotor();
 }
 

@@ -10,68 +10,6 @@
 #include "main.h"
 
 
-void enableBothFrontMotors(void)
-{
-    DEMUX_ENABLE_SetLow();     //Enable demux
-    FRONT_1BACK_SetLow(); //Enable front motors on the select line on the demux 
-    I11_L_SetLow();
-    I12_L_SetLow();
-    I11_R_SetLow();     //Enable both left and right motors
-    I12_R_SetLow();    
-}
-
-void enableLeftFrontMotor(void)
-{
-    DEMUX_ENABLE_SetLow();     //Enable demux
-    FRONT_1BACK_SetLow(); //Enable front motors on the select line on the demux 
-    I11_L_SetLow();     //Enable Left motors
-    I12_L_SetLow();     
-    I11_R_SetHigh();     //Disable Right motors
-    I12_R_SetHigh();    
-}
-
-void enableRightFrontMotor(void)
-{
-    DEMUX_ENABLE_SetLow();     //Enable demux
-    FRONT_1BACK_SetLow(); //Enable front motors select line on the demux 
-    I11_R_SetLow();     //Enable right motors
-    I12_R_SetLow();
-    I11_L_SetHigh();     //Disable Left motors
-    I12_L_SetHigh();
-    
-}
-
-void enableBothRearMotors(void)
-{
-    DEMUX_ENABLE_SetLow();  //Enable demux
-    FRONT_1BACK_SetHigh();  //Enable rear motors select line on the demux 
-    I11_L_SetLow();
-    I12_L_SetLow();
-    I11_R_SetLow();     //Enable both left and right motors
-    I12_R_SetLow();    
-}
-
-void enableLeftRearMotor(void)
-{
-    DEMUX_ENABLE_SetLow();  //Enable demux
-    FRONT_1BACK_SetHigh();  //Enable rear motors select line on the demux 
-    I11_L_SetLow();     //Enable left motors
-    I12_L_SetLow();
-    I11_R_SetHigh();     //Disable Right motors
-    I12_R_SetHigh();
-    
-}
-
-void enableRightRearMotor(void)
-{
-    DEMUX_ENABLE_SetLow();  //Enable demux
-    FRONT_1BACK_SetHigh();  //Enable rear motors select line on the demux
-    I11_R_SetLow();     //Enable right motors
-    I12_R_SetLow();
-    I11_L_SetHigh();     //Disable Left motors
-    I12_L_SetHigh();
-}
-
 void disableAllMotors(void)
 {
     T1CON = 0x0; //disable timer1
@@ -83,217 +21,147 @@ void disableAllMotors(void)
 
 void retractAllMotors()
 {    
-    retractFrontMotors();
-    retractRearMotors();
+    retractMotor(bothFront);
+    retractMotor(bothBack);    
 }
 
-void driveBothMotorsForward()
+void retractMotor(location loc)
 {
-    forward = true; //Motors are driving in the "forward" direction
-    
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source
-    
-    PHASE1_L_SetHigh(); //Phase1 Left Motors
-    PHASE2_L_SetHigh(); //Phase2 Left Motors    
-    PHASE1_R_SetHigh(); //Phase1 Right Motors
-    PHASE2_R_SetHigh(); //Phase2 Right Motors
-}
-
-void driveBothMotorsReverse()
-{
-    forward = false; //Motors are driving in the "reverse" direction
-    
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source
-    
-    PHASE1_L_SetHigh(); //Phase1 Left Motors
-    PHASE2_L_SetHigh(); //Phase2 Left Motors    
-    PHASE1_R_SetHigh(); //Phase1 Right Motors
-    PHASE2_R_SetHigh(); //Phase2 Right Motors
-}
-
-void driveRightMotorReverse()
-{
-    forward = false; //Motors are driving in the "reverse" direction
-    
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source
-    
-    PHASE1_R_SetHigh(); //Phase1 Right Motors
-    PHASE2_R_SetHigh(); //Phase2 Right Motors 
-}
-
-void driveLeftMotorReverse()
-{
-    forward = false; //Motors are driving in the "reverse" direction
-    
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source
-    
-    PHASE1_L_SetHigh(); //Phase1 Left Motors
-    PHASE2_L_SetHigh(); //Phase2 Left Motors 
-}
-
-void retractFrontMotors()
-{
-    forward = false;
-    volatile bool leftSwitch;   //bool for the limit switch on the left side
-    volatile bool rightSwitch;  //bool for the limit switch on the right side
-    //volatile bool leftFlag;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
-    //volatile bool rightFlag;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
-    
-    rightSwitch = LIMIT_FR_GetValue();
-    leftSwitch = LIMIT_FL_GetValue();
-    
-    while ((rightSwitch + leftSwitch) > 0)
-	{
-		if (rightSwitch && leftSwitch)
-		{
-			enableBothFrontMotors();
-			driveBothMotorsReverse();
-
-			while (rightSwitch && leftSwitch) 
-			{
-                rightSwitch = LIMIT_FR_GetValue();
-                leftSwitch = LIMIT_FL_GetValue();				
-			}
-			disableAllMotors();
-		}
-
-		if (rightSwitch)
-		{
-			enableRightFrontMotor();
-			driveRightMotorReverse();
-
-			while (rightSwitch)
-			{
-				rightSwitch = LIMIT_FR_GetValue();
-			}
-			disableAllMotors();
-		}
-
-		if (leftSwitch)
-		{
-			enableLeftFrontMotor();
-			driveLeftMotorReverse();
-
-			while (leftSwitch)
-			{                
-                leftSwitch = LIMIT_FL_GetValue();				
-			}
-			disableAllMotors();
-		}		
-	}
-    disableAllMotors();
-}
-
-void retractRearMotors()
-{
-    forward = false;
-    volatile bool leftSwitch;   //bool for the limit switch on the left side
-    volatile bool rightSwitch;  //bool for the limit switch on the right side
-    //volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
-    //volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
-    
-    rightSwitch = LIMIT_BR_GetValue();
-    leftSwitch = LIMIT_BL_GetValue();
-    
-    while ((rightSwitch + leftSwitch) > 0)
-	{
-		if (rightSwitch && leftSwitch)
-		{
-			enableBothRearMotors();
-			driveBothMotorsReverse();
-
-			while (rightSwitch && leftSwitch) 
-			{
-                rightSwitch = LIMIT_BR_GetValue();
-                leftSwitch = LIMIT_BL_GetValue();				
-			}
-			disableAllMotors();
-		}
-
-		if (rightSwitch)
-		{                        
-			enableRightRearMotor();
-			driveRightMotorReverse();
-
-			while (rightSwitch)
-			{
-				rightSwitch = LIMIT_BR_GetValue();
-			}
-			disableAllMotors();                        
-		}
-
-		if (leftSwitch)
-		{
-			enableLeftRearMotor();
-			driveLeftMotorReverse();
-
-			while (leftSwitch)
-			{                
-                leftSwitch = LIMIT_BL_GetValue();				
-			}
-			disableAllMotors();
-		}		
-	}
-    disableAllMotors();
-}
-
-void driveRightMotors()
-{   
-    forward = false; //Motors are driving in the "reverse" direction    
-    _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
-    TMR1 = 0; // Init the timer
-    PR1 = 158080-1; // set the period register
-    T1CON = 0x8000; // enabled, prescaler 1:1, internal clock
-    _T1IF = 0; //Clear Interrupt Flag
-    _T1IE = 1; //Enable Clock Source    
-    PHASE1_R_SetHigh(); //Phase1 Right Motors
-    PHASE2_R_SetHigh(); //Phase2 Right Motors 
-}
-
-void extendFrontRightMotor()
-{   
-    forward = true;
-    volatile bool rightSwitch;  //bool for the limit switch on the right side    
-    volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
-    rightSwitch = LIMIT_FR_GetValue();    
-    
-    if (rightSwitch)
-	{
-		enableRightFrontMotor();
-		driveBothMotorsForward();
-        
-		while (rightSwitch) 
-		{
-            rightSwitch = LIMIT_FR_GetValue();            			
-		}
-        rightFlag = true;
-        disableAllMotors();	
-	}
-    if(rightFlag)
+    if (loc == bothBack)
     {
-        backOff(frontRight);
-    }
+        forward = false;
+        volatile bool leftSwitch;   //bool for the limit switch on the left side
+        volatile bool rightSwitch;  //bool for the limit switch on the right side
+        volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+        volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
+
+        rightSwitch = LIMIT_BR_GetValue();
+        leftSwitch = LIMIT_BL_GetValue();
+
+        while (!rightFlag && !leftFlag)
+        {
+            if (rightSwitch && leftSwitch)
+            {			
+                enableMotor(bothBack);
+                driveMotor(both);
+
+                while (rightSwitch && leftSwitch) 
+                {
+                    rightSwitch = LIMIT_BR_GetValue();
+                    leftSwitch = LIMIT_BL_GetValue();				
+                }
+                leftFlag = true;
+                rightFlag = true;
+                disableAllMotors();
+                if (leftFlag && rightFlag)
+                {
+                    backOff(loc);
+                }
+            }
+            if (rightSwitch)
+            {                        
+                enableMotor(backRight);
+                driveMotor(right);
+
+                while (rightSwitch)
+                {
+                    rightSwitch = LIMIT_BR_GetValue();
+                }
+                rightFlag = true;
+                disableAllMotors();
+                if (rightFlag)
+                {
+                    backOff(backRight);
+                }
+            }
+
+            if (leftSwitch)
+            {
+                enableMotor(backLeft);
+                driveMotor(left);
+
+                while (leftSwitch)
+                {                
+                    leftSwitch = LIMIT_BL_GetValue();				
+                }
+                leftFlag = true;                
+                disableAllMotors();
+                if(leftFlag)
+                {
+                    backOff(backLeft);
+                }
+            }		
+        }
     disableAllMotors();
+    }
+    
+    if (loc == bothFront)
+    {
+        forward = false;
+        volatile bool leftSwitch;   //bool for the limit switch on the left side
+        volatile bool rightSwitch;  //bool for the limit switch on the right side
+        volatile bool leftFlag = false;     //flag when left limit switch has been hit to prevent leg moving again after limit switch was hit
+        volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
+
+        rightSwitch = LIMIT_FR_GetValue();
+        leftSwitch = LIMIT_FL_GetValue();
+
+        while (!rightFlag && !leftFlag)
+        {
+            if (rightSwitch && leftSwitch)
+            {			
+                enableMotor(bothFront);
+                driveMotor(both);
+
+                while (rightSwitch && leftSwitch) 
+                {
+                    rightSwitch = LIMIT_FR_GetValue();
+                    leftSwitch = LIMIT_FL_GetValue();				
+                }
+                leftFlag = true;
+                rightFlag = true;
+                disableAllMotors();
+                if (leftFlag && rightFlag)
+                {
+                    backOff(loc);
+                }
+            }
+            if (rightSwitch)
+            {                        
+                enableMotor(frontRight);
+                driveMotor(right);
+
+                while (rightSwitch)
+                {
+                    rightSwitch = LIMIT_FR_GetValue();
+                }
+                rightFlag = true;
+                disableAllMotors();
+                if (rightFlag)
+                {
+                    backOff(frontRight);
+                }
+            }
+
+            if (leftSwitch)
+            {
+                enableMotor(frontLeft);
+                driveMotor(left);
+
+                while (leftSwitch)
+                {                
+                    leftSwitch = LIMIT_FL_GetValue();				
+                }
+                leftFlag = true;                
+                disableAllMotors();
+                if(leftFlag)
+                {
+                    backOff(frontLeft);
+                }
+            }		
+        }
+    disableAllMotors();        
+    }    
 }
 
 void backOff(location loc)

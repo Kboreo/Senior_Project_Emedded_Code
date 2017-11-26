@@ -52,30 +52,12 @@ typedef enum
     backLeft, backRight, frontLeft, frontRight, bothFront, bothBack, left, right, both
 }location;
 
-
-
-
-void enableBothFrontMotors(void);
-void enableLeftFrontMotor(void);
-void enableRightFrontMotor(void);
-void enableBothRearMotors(void);
-void enableLeftRearMotor(void);
-void enableRightRearMotor(void);
 void disableAllMotors(void);        //Disables all motors
-void driveBothMotorsReverse(void);
-void driveBothMotorsForward(void);
 void retractAllMotors(void);
-void driveLeftMotorReverse(void);
-void driveRightMotorReverse(void);
-void retractFrontMotors(void);
-void retractRearMotors(void);
-
-void driveRightMotors(void);
 void backOff(location loc);
-void extendFrontRightMotor(void);
-
 void extendMotor(location loc);
 void enableMotor(location loc);
 void driveMotor(location loc);
+void retractMotor(location loc);
 
 

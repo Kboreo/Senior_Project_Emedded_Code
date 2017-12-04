@@ -22,7 +22,7 @@ void disableAllMotors(void)
 void retractAllMotors()
 {    
     retractMotor(bothFront);
-    //retractMotor(bothBack);    
+    retractMotor(bothBack);    
 }
 
 void retractMotor(location loc)
@@ -59,12 +59,12 @@ void retractMotor(location loc)
                     backOff(loc);   //Function to back leg off of limit switch
                 }
             }
-            if (rightSwitch)
+            if (rightSwitch)    //Check if the right is enabled
             {                        
                 enableMotor(backRight);
                 driveMotor(right);  //Drive the right motor in the selected direction.
 
-                while (rightSwitch)
+                while (rightSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                 }
@@ -127,12 +127,12 @@ void retractMotor(location loc)
                     backOff(loc);   //Function to back leg off of limit switch
                 }
             }
-            if (rightSwitch)
+            if (rightSwitch)    //Check if the right is enabled
             {                        
                 enableMotor(frontRight);
                 driveMotor(right);  //Drive the right motor in the selected direction.
 
-                while (rightSwitch)
+                while (rightSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                 }
@@ -219,7 +219,7 @@ void extendMotor(location loc)
     
         rightSwitch = LIMIT_FR_GetValue();    
     
-        if (rightSwitch)
+        if (rightSwitch)    //Check if the right is enabled
         {
             enableMotor(loc);
             driveMotor(right);  //Drive the right motor in the selected direction.
@@ -300,7 +300,7 @@ void extendMotor(location loc)
     
         rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.    
     
-        if (rightSwitch)
+        if (rightSwitch)    //Check if the right is enabled
         {
             enableMotor(loc);
             driveMotor(right);  //Drive the right motor in the selected direction.
@@ -352,12 +352,12 @@ void extendMotor(location loc)
                 backOff(loc);   //Function to back leg off of limit switch
             }
 
-            if (rightSwitch)
+            if (rightSwitch)    //Check if the right is enabled
             {
                 enableMotor(backRight);
                 driveMotor(right);  //Drive the right motor in the selected direction.
 
-                while (rightSwitch)
+                while (rightSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
                 {
                     rightSwitch = LIMIT_FR_GetValue();
                 }
@@ -427,12 +427,12 @@ void extendMotor(location loc)
                 backOff(loc);   //Function to back leg off of limit switch
             }
 
-            if (rightSwitch)
+            if (rightSwitch)    //Check if the right is enabled
             {
                 enableMotor(backRight);
                 driveMotor(right);  //Drive the right motor in the selected direction.
 
-                while (rightSwitch)
+                while (rightSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
                 {
                     rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
                 }

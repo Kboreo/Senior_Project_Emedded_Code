@@ -167,8 +167,7 @@ void backOff(location loc)
     {
 
     }
-    T1CON = 0x0; //disable timer1
-    //disableAllMotors(); //Disable all of the motors
+    T1CON = 0x0; //disable timer1    
 }
 
 void extendMotor(location loc)

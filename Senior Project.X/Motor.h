@@ -59,5 +59,6 @@ void extendMotor(location loc);
 void enableMotor(location loc);
 void driveMotor(location loc);
 void retractMotor(location loc);
-
+void initialMotorExtend(void);
+void levelHorizontally(void);
 

@@ -123,41 +123,55 @@ void retractMotor(location loc)
                     backOff(backRight);
                 }
             }
-    }   
+    }
+    
+    if (loc == backLeft)
+    {
+        forward = false;    //Set direction to reverse
+        bothM = false;      //Set only one motor to drive
+        leftM = true;      //Drive only Left motor
+        
+        volatile bool leftSwitch;  //bool for the limit switch on the right side
+        volatile bool leftFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
+        
+        leftSwitch = LIMIT_BL_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+        
+        if (leftSwitch)    //Check if the right is enabled
+            {                        
+                enableMotor(bothBack);
+                driveMotor(left);  //Drive the right motor in the selected direction.
+
+                while (leftSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
+                {
+                    leftSwitch = LIMIT_BL_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+                }
+                leftFlag = true;   //Set the flag for the right limit switch
+                
+                if (leftFlag)
+                {
+                    backOff(backLeft);
+                }
+            }
+    }
 }
 
 void backOff(location loc)
 {
     forward = !forward;
-    int target = 25;        //25
-    wait = 0;
+    int target = 25;        //25 is approx 1mm
+    wait = 0;       //reset wait var
     enableMotor(loc);
-    
-    if(loc == frontRight)
-    {
-        driveMotor(right);  //Drive the right motor in the selected direction.       	 
-    }
-    
+
     if(loc == backRight)
     {
         driveMotor(right);  //Drive the right motor in the selected direction.       	 
-    }
-    
-    if(loc == frontLeft)
-    {        
-        driveMotor(left);       //Drive the left motor in the selected direction. 
-    }
-    
+    }    
+  
     if(loc == backLeft)
     {        
         driveMotor(left);       //Drive the left motor in the selected direction. 
-    }
-    
-    if(loc == bothFront)
-    {
-         driveMotor(both);       //Drive both of the motors selected.
-    }
-    
+    }    
+   
     if(loc == bothBack)
     {
          driveMotor(both);       //Drive both of the motors selected.
@@ -171,60 +185,64 @@ void backOff(location loc)
 }
 
 void extendMotor(location loc)
-{    
-    if(loc == backLeft)
+{
+    if (loc == backLeft)
     {
-        forward = true;
-        volatile bool leftSwitch;  //bool for the limit switch on the right side    
-        volatile bool leftFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after
-    
-        leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.    
-    
-        if (leftSwitch)
-        {
-            enableMotor(loc);
-            driveMotor(left);       //Drive the left motor in the selected direction.
+        forward = true;    //Set direction to reverse
+        bothM = false;      //Set only one motor to drive
+        leftM = true;      //Drive only Left motor
+        
+        volatile bool leftSwitch;  //bool for the limit switch on the right side
+        volatile bool leftFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
+        
+        leftSwitch = LIMIT_BL_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+        
+        if (leftSwitch)    //Check if the right is enabled
+            {                        
+                enableMotor(bothBack);
+                driveMotor(left);  //Drive the right motor in the selected direction.
 
-            while(leftSwitch) 
-            {
-                leftSwitch = LIMIT_BL_GetValue();   //Set leftSwitch equal to the current value of the left limit switch.            			
+                while (leftSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
+                {
+                    leftSwitch = LIMIT_BL_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+                }
+                leftFlag = true;   //Set the flag for the right limit switch
+                
+                if (leftFlag)
+                {
+                    backOff(backLeft);
+                }
             }
-            leftFlag = true;    //Set the flag for the left limit switch
-            //disableAllMotors(); //Disable all of the motors	
-        }
-        if(leftFlag)
-        {
-            backOff(loc);   //Function to back leg off of limit switch
-        }
-        //disableAllMotors(); //Disable all of the motors
     }
     
-    if(loc == backRight)
+    if (loc == backRight)
     {
-        forward = true;
-        volatile bool rightSwitch;  //bool for the limit switch on the right side    
+        forward = true;    //Set direction to reverse
+        bothM = false;      //Set only one motor to drive
+        leftM = false;      //Drive only Right motor
+        
+        volatile bool rightSwitch;  //bool for the limit switch on the right side
         volatile bool rightFlag = false;    //flag when right limit switch has been hit to prevent leg moving again after limit switch was hit
-    
-        rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.    
-    
+        
+        rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+        
         if (rightSwitch)    //Check if the right is enabled
-        {
-            enableMotor(loc);
-            driveMotor(right);  //Drive the right motor in the selected direction.
+            {                        
+                enableMotor(bothBack);
+                driveMotor(right);  //Drive the right motor in the selected direction.
 
-            while(rightSwitch) 
-            {
-                rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.            			
+                while (rightSwitch) //While the right switch is enabled, keep checking if the limit switch goes low.
+                {
+                    rightSwitch = LIMIT_BR_GetValue();  //Set rightSwitch equal to the current value of the right limit switch.
+                }
+                rightFlag = true;   //Set the flag for the right limit switch
+                
+                if (rightFlag)
+                {
+                    backOff(backRight);
+                }
             }
-            rightFlag = true;   //Set the flag for the right limit switch
-            disableAllMotors(); //Disable all of the motors	
-        }
-        if(rightFlag)
-        {
-            backOff(loc);   //Function to back leg off of limit switch
-        }
-        disableAllMotors(); //Disable all of the motors
-    }    
+    } 
     
     if(loc == bothBack)
     {
@@ -440,3 +458,48 @@ void driveMotor(location loc)
         }
     }
 }
+
+void initialMotorExtend(void)
+{
+    forward = true;    //Set direction to reverse
+    bothM = true;      //Set only one motor to drive
+    wait = 0;           //Set wait to 0
+    
+    enableMotor(bothBack);  //enable both back motors
+    driveMotor(both);  //Drive both motors in the selected direction.
+    
+    while(wait<= 160)    //Drive both back motors for 80 steps (approx 0.25")
+    {
+        
+    }
+    T1CON = 0x0; //disable timer1    
+}
+
+void levelHorizontally(void)
+{
+    bool tiltBackRight; //When equal to one, right side is too low
+    bool tiltBackLeft; //When equal to one, left side is too low
+    
+    
+    //Get initial conditions from system
+    tiltBackRight = TILT_BACK_RIGHT_GetValue();     //Sets tiltBackRight equal to TILT_BACK_RIGHT
+    tiltBackLeft = TILT_BACK_LEFT_GetValue();       //Sets tiltBackLeft equal to TILT_BACK_LEFT
+    
+    if(tiltBackRight)   //If right side tilt switch is hit, meaning right side is low.
+    {
+        
+        if(!rightHigh) //if the high limit switch has not been hit
+        {
+            
+        }
+    }
+    
+
+    
+    while(TILT_BACK_RIGHT_GetValue())
+    {
+        
+    }
+    
+}
+

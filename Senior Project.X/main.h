@@ -78,3 +78,5 @@ extern "C" {
 
 extern bool forward;
 extern int wait;
+extern bool leftM;   //Bool used to let the controller know which motor to move (true = left motor only or false = right motor only) 
+extern bool bothM;  //Bool used to let the controller know which motor to move (true = move left and right or false = move single motor)

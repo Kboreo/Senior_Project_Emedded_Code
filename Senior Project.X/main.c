@@ -9,9 +9,8 @@
 void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void);   //Timer 1 Interrupt Function
 void __attribute__((__interrupt__, __auto_psv__)) _T3Interrupt(void);   //Timer 2/3 Interrupt Function
 void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt (void);  //Timer 4/5 Interrupt Function  (5ms timer)
-void initialize_5ms_Timer(void);
-void motorTest(void);
-void timer23Init(void);
+void initialize_5ms_Timer(void);    //Initialize 5ms Timer
+void timer23Init(void); //Initialize 2_3 32bit Timer
 void takeDown(void);    //Function when the take down switch is hit, retracts all legs
 void setUp(void);   //Function when "Set up" button is pressed
 
@@ -22,7 +21,6 @@ bool bothM = false;  //Bool used to let the controller know which motor to move 
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
 bool timer23Flag = false;   //Flag used to control speed of motor
 int wait = 0; //wait var used for back-off function
-
 bool rightLow = false;
 bool rightHigh = false;
 bool leftHigh = false;      //Initial conditions for limit switch flags 
@@ -33,7 +31,7 @@ bool tiltRightLow;   //If = 1, then right side is too low of an angle
 bool tiltRightHigh;  //If = 1, then right side is too high of an angle        Condition Flags for rest of system
 bool tiltLeftHigh;   //If = 1, then left side is too high of an angle
 bool tiltLeftLow;    //If = 1, then left side is too low of an angle
-
+int loop = 0;
 
 int main(void)
 {   
@@ -41,19 +39,22 @@ int main(void)
     initialize_5ms_Timer(); //initialize the 5ms timer    
     timer23Init();  //initialize the 2_3 32bit timer    
     
+    while(loop <= 1000) //wait loop 
+    {
+        
+    }
+    
     while (1)
     {   
         if(SETUP_GetValue() == 0)   //If Set Up button is pushed run the following code
         {
             setUp();            
         }
-        
         if(TAKEDOWN_GetValue() == 0)  //If Take Down button is pushed run the following code
         {
             takeDown();
         }        
     }
-
     return -1;
 }
 
@@ -255,6 +256,11 @@ void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void)
     tiltLeftHigh = TILT_LEFT_HIGH_GetValue();
     tiltLeftLow = TILT_LEFT_LOW_GetValue();    
     
+    if(loop <= 1000) //used for initial wait
+    {
+        loop++; //Increment loop counter
+    }
+    
     if(!backLeftS) //Check if back left limit switch was hit
     {
         if (forward)
@@ -283,6 +289,7 @@ void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void)
         }
     }
     
+    //if no flags are hit reset flags
     if(backLeftS)
     {
         leftHigh = false;   //reset left switch flags
@@ -293,39 +300,28 @@ void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void)
     {
        rightHigh = false;       //rest right switch flags
        rightLow = false; 
-    }
-    
+    }    
     _T5IF = 0;   //Reset interrupt flag.
-}
-
-void motorTest(void)
-{       
-    //extendMotor(frontRight);
-    //extendMotor(backLeft);
-    //retractAllMotors();
-    //enableMotor(backRight);
-    retractMotor(backRight);
-    //extendFrontRightMotor();
 }
 
 void timer23Init(void)
 {
-  TMR3 = 0x0000;  //Clear timer 3  
   //PR3 = 0x04C4;   //Period for most significant word of (time) 5s timer
   //PR3 = 0x00F4;   //Period for most significant word of (time) 1s timer
   //PR3 = 0x003D;   //Period for most significant word of (time) 0.25s timer
   //PR3 = 0x0009;   //Period for most significant word of (time) 0.04s timer
   //PR3 = 0x0003;   //Period for most significant word of (time) 0.014s timer
-  //PR3 = 0x0001;   //Period for most significant word of (time) 0.005s timer (8mm/s)
-  PR3 = 0x0002;   //Period for most significant word of (time) 0.005s timer (4mm/s)
-  TMR2 = 0;       //Clear timer 2
-  _T3IP = 3;      //Priority bit for timer
+  //PR3 = 0x0001;   //Period for most significant word of (time) 0.005s timer (8mm/s)               //Testing different speeds
   //PR2 = 0xB400-1;     //Period for least significant word of (time) 5s timer      (0.008mm/s)
   //PR2 = 0x2400-1;     //Period for least significant word of (time) 1s timer      (0.04mm/s)
   //PR2 = 0x0900-1;     //Period for least significant word of (time) 0.25s timer   (0.16mm/s)
   //PR2 = 0xC400-1;     //Period for least significant word of (time) 0.04s timer   (1mm/s)
   //PR2 = 0x6B00-1;     //Period for least significant word of (time) 0.014s timer  (2.86 mm/s)
   //PR2 = 0x3880-1;     //Period for least significant word of (time) 0.005s timer    (8mm/s)
+  TMR3 = 0x0000;  //Clear timer 3  
+  PR3 = 0x0002;   //Period for most significant word of (time) 0.005s timer (4mm/s)
+  TMR2 = 0;       //Clear timer 2
+  _T3IP = 3;      //Priority bit for timer
   PR2 = 0x7100-1;     //Period for least significant word of (time) 0.005s timer    (4mm/s)
   T2CON = 0x8008; //TCKPS 1:1; T32 32 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TECS SOSC; TGATE disabled; 
   _T3IF = 0;  //Clear interrupt flag
@@ -336,18 +332,18 @@ void takeDown(void)
 {    
     STATUS_LED_SetHigh();   //Turn status LED on to let user know the microcontroller is currently "Working".
     timer23Init();  //Initialize 32 bit 2/3 Timer
-    retractMotor(backRight);
-    retractMotor(backLeft);
+    retractMotor(backRight);    //Fully Retract back right motor
+    retractMotor(backLeft);     //Fully Retract left right motor
     STATUS_LED_SetLow();    //Turn status LED off to let user know the microcontroller is done "Working".
-    disableAllMotors();
+    disableAllMotors();     //Disable all of the motors
 }
 
 void setUp(void)
 {
     STATUS_LED_SetHigh();   //Turn status LED on to let user know the microcontroller is currently "Working".
-    initialMotorExtend();
-    levelHorizontally();
-    
+    initialMotorExtend();   //extend both motors a slight amount
+    levelHorizontally();    //level the board horizontally
+    raise10Degrees();       //Raise motor to 10 degrees if possible
     STATUS_LED_SetLow();    //Turn status LED off to let user know the microcontroller is done "Working".
 }
 
@@ -362,7 +358,3 @@ void initialize_5ms_Timer(void)
     _T5IF = 0;  //Clear interrupt flag
     _T5IE = 1;  //Enable clock source
 }
-
-/**
- End of File
-*/

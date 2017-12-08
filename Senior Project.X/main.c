@@ -4,9 +4,12 @@
 #include "main.h"
 
 
+
 //Function Prototypes
 void __attribute__((__interrupt__, __auto_psv__)) _T1Interrupt(void);   //Timer 1 Interrupt Function
 void __attribute__((__interrupt__, __auto_psv__)) _T3Interrupt(void);   //Timer 2/3 Interrupt Function
+void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt (void);  //Timer 4/5 Interrupt Function  (5ms timer)
+void initialize_5ms_Timer(void);
 void motorTest(void);
 void timer23Init(void);
 void takeDown(void);    //Function when the take down switch is hit, retracts all legs
@@ -29,7 +32,10 @@ int main(void)
 {    
     // initialize the device
     SYSTEM_Initialize(); 
-       
+    
+    initialize_5ms_Timer();
+    
+    
     timer23Init();
     //motorTest();    
     
@@ -246,6 +252,42 @@ void __attribute__((__interrupt__, __auto_psv__)) _T3Interrupt(void)
    _T3IF = 0;   //Reset interrupt flag.
 }
 
+void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void) 
+{
+    bool backLeftS =  LIMIT_BL_GetValue();
+    bool backRightS = LIMIT_BR_GetValue();
+    
+    if(!backLeftS) //Check if back left limit switch was hit
+    {
+        if (forward)
+        {
+            leftHigh = true; //High left limit was hit
+            leftLow = false; 
+        }
+        if (!forward)
+        {
+            leftLow = true; //low left limit was hit
+            leftHigh = false;
+        }
+    }
+    
+    if(!backRightS) //Check if back right limit switch was hit
+    {
+        if (forward)
+        {
+            rightHigh = true;   //High right limit was hit
+            rightLow = false;   
+        }
+        if (!forward)
+        {
+            rightLow = true;    //low right limit was hit
+            rightHigh = false;   
+        }
+    }
+    
+    _T5IF = 0;   //Reset interrupt flag.
+}
+
 void motorTest(void)
 {       
     //extendMotor(frontRight);
@@ -267,7 +309,7 @@ void timer23Init(void)
   //PR3 = 0x0001;   //Period for most significant word of (time) 0.005s timer (8mm/s)
   PR3 = 0x0002;   //Period for most significant word of (time) 0.005s timer (4mm/s)
   TMR2 = 0;       //Clear timer 2
-  _T3IP = 2;      //Priority bit for timer
+  _T3IP = 3;      //Priority bit for timer
   //PR2 = 0xB400-1;     //Period for least significant word of (time) 5s timer      (0.008mm/s)
   //PR2 = 0x2400-1;     //Period for least significant word of (time) 1s timer      (0.04mm/s)
   //PR2 = 0x0900-1;     //Period for least significant word of (time) 0.25s timer   (0.16mm/s)
@@ -298,6 +340,19 @@ void setUp(void)
     
     STATUS_LED_SetLow();    //Turn status LED off to let user know the microcontroller is done "Working".
 }
+
+void initialize_5ms_Timer(void)
+{
+    TMR5 = 0x0000;  //Clear Timer 5
+    PR5 = 0x0001;   //Period for most significant word of (time) (5ms timer)
+    TMR4 = 0x0000;  //Clear Timer 4
+    PR4 = 0x3880-1;   //Period for least significant word of (time) (5ms timer)
+    _T5IP = 2;      //Priority bit for timer
+    T4CON = 0x8008; //TCKPS 1:1; T32 32 Bit; TON enabled; TSIDL disabled; TCS FOSC/2; TECS SOSC; TGATE disabled;
+    _T5IF = 0;  //Clear interrupt flag
+    _T5IE = 1;  //Enable clock source
+}
+
 /**
  End of File
 */

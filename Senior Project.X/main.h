@@ -39,3 +39,13 @@ extern bool leftHigh;   //Flag that is turned high if upper limit switch is hit 
 extern bool leftLow;   //Flag that is turned high if lower limit switch is hit on the back left leg.
 extern bool rightHigh;   //Flag that is turned high if upper limit switch is hit on the back right leg.
 extern bool rightLow;   //Flag that is turned high if lower limit switch is hit on the back right leg.
+extern bool tiltBackLeft;   //TILT_BACK_LEFT_GetValue();
+extern bool tiltBackRight;  //TILT_BACK_RIGHT_GetValue();
+extern bool tiltRightLow;   //TILT_RIGHT_LOW_GetValue();
+extern bool tiltRightHigh;  //TILT_RIGHT_HIGH_GetValue();          Condition Flags for rest of switches in system
+extern bool tiltLeftHigh;   //TILT_LEFT_HIGH_GetValue();
+extern bool tiltLeftLow;    //TILT_LEFT_LOW_GetValue();
+
+extern void initialize_5ms_Timer(void);
+
+extern void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt (void);  //Timer 4/5 Interrupt Function  (5ms timer)

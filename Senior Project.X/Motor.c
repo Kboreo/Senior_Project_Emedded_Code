@@ -89,7 +89,7 @@ void retractMotor(location loc)
 void backOff(location loc)
 {
     forward = !forward;
-    int target = 25;        //25 is approx 1mm
+    int target = 30;        //25 is approx 1mm
     wait = 0;       //reset wait var
     enableMotor(loc);
 
@@ -346,7 +346,9 @@ void driveMotor(location loc)
         switch (loc)
         {
             case left:
-                forward = false; //Motors are driving in the "reverse" direction    
+                forward = false; //Motors are driving in the "reverse" direction   
+                leftM = true; //Only left motor is driving
+                bothM = false;   //Only one motor is driving
                 _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
                 TMR1 = 0; // Init the timer
                 PR1 = 158080-1; // set the period register
@@ -359,6 +361,8 @@ void driveMotor(location loc)
                 
             case right:
                 forward = false; //Motors are driving in the "reverse" direction    
+                leftM = false; //Only Right motor is driving
+                bothM = false;   //Only one motor is driving
                 _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
                 TMR1 = 0; // Init the timer
                 PR1 = 158080-1; // set the period register
@@ -371,7 +375,9 @@ void driveMotor(location loc)
                 break;
                 
             case both:
-                forward = false; //Motors are driving in the "forward" direction    
+                forward = false; //Motors are driving in the "forward" direction   
+                leftM = false; //Only Right motor is driving
+                bothM = true;   //Only one motor is driving
                 _T1IP = 1; // this is the default value anyway, priority of Interrupt for Timer1
                 TMR1 = 0; // Init the timer
                 PR1 = 158080-1; // set the period register
@@ -399,7 +405,7 @@ void initialMotorExtend(void)
     enableMotor(bothBack);  //enable both back motors
     driveMotor(both);  //Drive both motors in the selected direction.
     
-    while(wait<= 160)    //Drive both back motors for 80 steps (approx 0.25")
+    while(wait<= 160)    //Drive both back motors for 160 steps (approx 0.25")
     {
         
     }
@@ -407,30 +413,149 @@ void initialMotorExtend(void)
 }
 
 void levelHorizontally(void)
-{
-    bool tiltBackRight; //When equal to one, right side is too low
-    bool tiltBackLeft; //When equal to one, left side is too low
-    
-    
-    //Get initial conditions from system
-    tiltBackRight = TILT_BACK_RIGHT_GetValue();     //Sets tiltBackRight equal to TILT_BACK_RIGHT
-    tiltBackLeft = TILT_BACK_LEFT_GetValue();       //Sets tiltBackLeft equal to TILT_BACK_LEFT
-    
-    if(tiltBackRight)   //If right side tilt switch is hit, meaning right side is low.
-    {
-        
-        if(!rightHigh) //if the high limit switch has not been hit
-        {
-            
-        }
-    }
-    
+{    
+    int loop = 0;
+    while(loop < 3)
+    {    
+        while((tiltBackRight) || (tiltBackLeft))      //while board is not level, loop state machine
+        {     
+            if(tiltBackRight)   //If right side tilt switch is hit, meaning right side is low.
+            {
+                if(rightHigh && leftHigh)   //if both high limit switches have been hit, error occurred... exit
+                {
+                    goto error; //jumps to error loop
+                }
 
-    
-    while(TILT_BACK_RIGHT_GetValue())
-    {
-        
-    }
-    
+                if(!rightHigh) //if the high limit switch on the back right has not been hit
+                {
+                    forward = true;
+                    enableMotor(bothBack);
+                    driveMotor(right);
+                    while(tiltBackRight && !rightHigh)  //While switch is still showing right side is low and right high limit switch has not been hit
+                    {                                   //Drive Back Right motor forward   
+
+                    }
+                    backOff(backRight);
+                    T1CON = 0x0; //disable timer1, which stops the motors from driving
+
+                    if(!tiltBackRight && !tiltBackLeft)
+                    {
+                        goto level;
+                    }
+
+                    if(rightHigh)       //High limit switch was hit, need to check if board is level
+                    {
+                        if(!tiltBackRight && !tiltBackLeft) //Board is level
+                        {
+                            backOff(bothBack);
+                            goto level;
+                        }
+
+                        if(rightHigh && leftHigh)   //An error occurred
+                        {
+                            backOff(bothBack);
+                            goto error;
+                        }
+
+                        if(!leftHigh) //left higher limit switch has not been hit, need to lower to try to level 
+                        {
+                            forward = false;
+                            enableMotor(bothBack);
+                            driveMotor(left);
+                            while(tiltBackRight && !leftLow)  //While switch is still showing rightSidelow and lower left switch has not been hit
+                            {                                   //Drive Back Right motor forward   
+
+                            }
+                            T1CON = 0x0; //disable timer1, which stops the motors from driving
+
+                            if(!tiltBackRight && !tiltBackLeft)
+                            {
+                                backOff(backLeft);
+                                goto level;
+                            }
+
+                            if(leftLow)
+                            {
+                                backOff(backLeft);
+                                goto error;
+                            }
+                        }
+                    }
+                }            
+            }
+
+            if(tiltBackLeft)   //If left side tilt switch is hit, meaning left side is low.)
+            {
+                if(rightHigh && leftHigh)   //if both high limit switches have been hit, error occurred... exit
+                {
+                    goto error; //jumps to error loop
+                }
+
+                if(!leftHigh) //if the high limit switch on the back left has not been hit
+                {
+                    forward = true;
+                    enableMotor(bothBack);
+                    driveMotor(left);
+                    while(tiltBackLeft && !leftHigh)  //While switch is still showing left side is low and left high limit switch has not been hit
+                    {                                     
+                            //Drive Back left motor forward 
+                    }
+                    T1CON = 0x0; //disable timer1, which stops the motors from driving
+
+                    if(!tiltBackRight && !tiltBackLeft)
+                    {
+                        goto level;
+                    }
+
+                    if(leftHigh)       //High limit switch was hit, need to check if board is level
+                    {
+                        if(!tiltBackRight && !tiltBackLeft) //Board is level
+                        {
+                            goto level;
+                        }
+
+                        if(rightHigh && leftHigh)   //An error occurred
+                        {
+                            goto error;
+                        }
+                        if(!rightHigh) //right higher limit switch has not been hit, need to lower to try to level 
+                        {
+                            forward = false;
+                            enableMotor(bothBack);
+                            driveMotor(right);
+                            while(tiltBackLeft && !rightLow)  //While switch is still showing rightSidelow and lower left switch has not been hit
+                            {                                   //Drive Back Right motor forward   
+
+                            }
+                            T1CON = 0x0; //disable timer1, which stops the motors from driving
+
+                            if(!tiltBackRight && !tiltBackLeft)
+                            {
+                                goto level;
+                            }
+
+                            if(rightLow)
+                            {
+                                backOff(backRight);
+                                goto error;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+            error:
+            {
+                break;//something went wrong, break out of while loop
+            }
+            level:
+            {
+                break; //leveling has been completed
+            }
+        }
+        loop++;
+    }    
 }
 

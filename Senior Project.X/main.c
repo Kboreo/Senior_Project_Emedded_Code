@@ -22,44 +22,36 @@ bool bothM = false;  //Bool used to let the controller know which motor to move 
 int motorStage = 1; // integer for switch statement in Timer1 Interrupt function
 bool timer23Flag = false;   //Flag used to control speed of motor
 int wait = 0; //wait var used for back-off function
+
 bool rightLow = false;
 bool rightHigh = false;
 bool leftHigh = false;      //Initial conditions for limit switch flags 
 bool leftLow  = false;
+bool tiltBackLeft;   //If = 1, then back left side is too low
+bool tiltBackRight;  //If = 1, then back right side is too low
+bool tiltRightLow;   //If = 1, then right side is too low of an angle
+bool tiltRightHigh;  //If = 1, then right side is too high of an angle        Condition Flags for rest of system
+bool tiltLeftHigh;   //If = 1, then left side is too high of an angle
+bool tiltLeftLow;    //If = 1, then left side is too low of an angle
 
 
 int main(void)
-{    
-    // initialize the device
-    SYSTEM_Initialize(); 
-    
-    initialize_5ms_Timer();
-    
-    
-    timer23Init();
-    //motorTest();    
-    
-    
+{   
+    SYSTEM_Initialize();    //initialize the device    
+    initialize_5ms_Timer(); //initialize the 5ms timer    
+    timer23Init();  //initialize the 2_3 32bit timer    
     
     while (1)
     {   
-        if(SETUP_GetValue() == 0)
+        if(SETUP_GetValue() == 0)   //If Set Up button is pushed run the following code
         {
-            int tiltBackLeft = TILT_BACK_LEFT_GetValue();
-            int tiltBackRight = TILT_BACK_RIGHT_GetValue();
-            int tiltRightLow = TILT_RIGHT_LOW_GetValue();
-            int tiltRightHigh = TILT_RIGHT_HIGH_GetValue();
-            int tiltLeftHigh = TILT_LEFT_HIGH_GetValue();
-            int tiltLeftLow = TILT_LEFT_LOW_GetValue();
             setUp();            
         }
         
         if(TAKEDOWN_GetValue() == 0)  //If Take Down button is pushed run the following code
         {
             takeDown();
-        }
-        
-        
+        }        
     }
 
     return -1;
@@ -256,6 +248,12 @@ void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void)
 {
     bool backLeftS =  LIMIT_BL_GetValue();
     bool backRightS = LIMIT_BR_GetValue();
+    tiltBackLeft = TILT_BACK_LEFT_GetValue();
+    tiltBackRight =  TILT_BACK_RIGHT_GetValue();
+    tiltRightLow = TILT_RIGHT_LOW_GetValue();       //Update all the system tilt switch values
+    tiltRightHigh = TILT_RIGHT_HIGH_GetValue();          
+    tiltLeftHigh = TILT_LEFT_HIGH_GetValue();
+    tiltLeftLow = TILT_LEFT_LOW_GetValue();    
     
     if(!backLeftS) //Check if back left limit switch was hit
     {
@@ -283,6 +281,18 @@ void __attribute__((__interrupt__, __auto_psv__)) _T5Interrupt(void)
             rightLow = true;    //low right limit was hit
             rightHigh = false;   
         }
+    }
+    
+    if(backLeftS)
+    {
+        leftHigh = false;   //reset left switch flags
+        leftLow = false;
+    }
+    
+    if(backRightS)
+    {
+       rightHigh = false;       //rest right switch flags
+       rightLow = false; 
     }
     
     _T5IF = 0;   //Reset interrupt flag.

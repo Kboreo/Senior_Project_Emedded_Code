@@ -341,6 +341,8 @@ void takeDown(void)
 void setUp(void)
 {
     STATUS_LED_SetHigh();   //Turn status LED on to let user know the microcontroller is currently "Working".
+    retractMotor(backRight);    //Fully Retract back right motor
+    retractMotor(backLeft);     //Fully Retract left right motor
     initialMotorExtend();   //extend both motors a slight amount
     levelHorizontally();    //level the board horizontally
     raise10Degrees();       //Raise motor to 10 degrees if possible
